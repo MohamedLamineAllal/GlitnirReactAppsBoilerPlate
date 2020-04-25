@@ -1,0 +1,220 @@
+import React from 'react';
+//@ts-ignore
+import { ChartCanvas, Chart } from "react-stockcharts";
+import { format } from "d3-format";
+import { timeFormat } from "d3-time-format";
+
+import {
+	CandlestickSeries,
+	LineSeries
+	//@ts-ignore
+} from "react-stockcharts/lib/series";
+//@ts-ignore
+import { XAxis, YAxis } from "react-stockcharts/lib/axes";
+import {
+	CrossHairCursor,
+	EdgeIndicator,
+	CurrentCoordinate,
+	MouseCoordinateX,
+	MouseCoordinateY
+	//@ts-ignore
+} from "react-stockcharts/lib/coordinates";
+
+import {
+	LabelAnnotation,
+	Label,
+	Annotate
+	//@ts-ignore
+} from "react-stockcharts/lib/annotation";
+//@ts-ignore
+import { discontinuousTimeScaleProvider } from "react-stockcharts/lib/scale";
+//@ts-ignore
+import { fitWidth } from "react-stockcharts/lib/helper";
+//@ts-ignore
+import { last } from "react-stockcharts/lib/utils";
+import {
+	OHLCTooltip,
+	MovingAverageTooltip
+	//@ts-ignore
+} from "react-stockcharts/lib/tooltip";
+
+import { ChartMargin } from "../../../../../../declarations/react-stockcharts";
+
+import { Candle, GoldScriptCandle } from "../../../../../../declarations/trading";
+import { TradingViewOneData, BuySellPoint } from '../../../../../../types/trading';
+
+
+interface TradingChartProps {
+	data: TradingViewOneData[];
+	ratio: number;
+	type: "svg" | "hybrid";
+}
+
+interface MyTradingChartProps {
+	showGrid?: boolean;
+}
+
+function isBuySignal(point: BuySellPoint) {
+	return point.buy;
+}
+
+function isSellSignal(point: BuySellPoint) {
+	return point.sell;
+}
+
+export default (function TradingChart({
+	data,
+	ratio,
+	type,
+	showGrid = true
+}) {
+	const width: number = window.innerWidth - 50;
+	const height: number = Math.max(window.innerHeight - 400, 600);
+
+	const sellAnnotationProps = {
+		fontFamily: "Glyphicons Halflings",
+		fontSize: 20,
+		fill: "#2432fd",
+		opacity: 0.8,
+		text: "S",
+		y: ({ yScale }: { yScale: any }) => yScale.range()[0],
+		onClick: console.log.bind(console),
+		tooltip: (candle: GoldScriptCandle) =>
+			timeFormat("%B")(new Date(candle.openTime))
+		// onMouseOver: console.log.bind(console),
+	};
+	const buyAnnotationProps = {
+		fontFamily: "Glyphicons Halflings",
+		fontSize: 20,
+		fill: "#4ad61f",
+		opacity: 0.8,
+		text: "B",
+		y: ({ yScale }: { yScale: any }) => yScale.range()[0],
+		onClick: console.log.bind(console),
+		tooltip: (candle: GoldScriptCandle) =>
+			timeFormat("%B")(new Date(candle.openTime))
+		// onMouseOver: console.log.bind(console),
+	};
+
+	const margin: ChartMargin = { left: 80, right: 80, top: 30, bottom: 50 };
+
+	const yAxisLabelX = width - margin.left - 40;
+	const yAxisLabelY = (height - margin.top - margin.bottom) / 2;
+
+	const xScaleProvider = discontinuousTimeScaleProvider.inputDateAccessor(
+		(candle: GoldScriptCandle) => new Date(candle.openTime)
+	);
+
+	const { data: _data, xScale, xAccessor, displayXAccessor } = xScaleProvider(
+		data
+	);
+
+	const start = xAccessor(last(_data));
+	const end = xAccessor(_data[Math.max(0, data.length - 150)]);
+	const xExtents = [start, end];
+
+	// Grid
+	var gridHeight = height - margin.top - margin.bottom;
+	var gridWidth = width - margin.left - margin.right;
+
+	var yGrid = showGrid
+		? {
+				innerTickSize: -1 * gridWidth,
+				tickStrokeDasharray: "Solid",
+				tickStrokeOpacity: 0.2,
+				tickStrokeWidth: 1
+		  }
+		: {};
+	var xGrid = showGrid
+		? {
+				innerTickSize: -1 * gridHeight,
+				tickStrokeDasharray: "Solid",
+				tickStrokeOpacity: 0.2,
+				tickStrokeWidth: 1
+		  }
+		: {};
+
+	return (
+		<ChartCanvas
+			height={height}
+			ratio={ratio}
+			width={width}
+			margin={margin}
+			type={type}
+			seriesName="MSFT"
+			data={data}
+			xScale={xScale}
+			xAccessor={xAccessor}
+			displayXAccessor={displayXAccessor}
+			xExtents={xExtents}
+		>
+			<Label
+				x={(width - margin.left - margin.right) / 2}
+				y={30}
+				fontSize={30}
+				text="Chart title here"
+			/>
+
+			<Chart
+				id={1}
+				yExtents={[(d: TradingViewOneData) => [d.candle.high, d.candle.low]]}
+				padding={{ top: 10, bottom: 20 }}
+			>
+				<XAxis axisAt="bottom" orient="bottom" {...xGrid} />
+				<MouseCoordinateX
+					at="bottom"
+					orient="bottom"
+					displayFormat={timeFormat("%Y-%m-%d")}
+				/>
+
+				<Label
+					x={(width - margin.left - margin.right) / 2}
+					y={height - 45}
+					fontSize={12}
+					text="XAxis Label here"
+				/>
+
+				<YAxis axisAt="right" orient="right" ticks={5} {...yGrid} />
+
+				<MouseCoordinateY
+					at="right"
+					orient="right"
+					displayFormat={format(".2f")}
+				/>
+
+				<Label
+					x={yAxisLabelX}
+					y={yAxisLabelY}
+					rotate={-90}
+					fontSize={12}
+					text="YAxis Label here"
+				/>
+
+				<CandlestickSeries />
+				<EdgeIndicator
+					itemType="last"
+					orient="right"
+					edgeAt="right"
+					yAccessor={(d: TradingViewOneData) => d.candle.close}
+					fill={(d: TradingViewOneData) =>
+						d.candle.close > d.candle.open ? "#6BA583" : "#FF0000"
+					}
+				/>
+
+				<OHLCTooltip origin={[-40, 0]} />
+
+				<Annotate
+					with={LabelAnnotation}
+					when={(d: TradingViewOneData) => isBuySignal(d.buySell)}
+					usingProps={buyAnnotationProps}
+				/>
+				<Annotate
+					with={LabelAnnotation}
+					when={(d: TradingViewOneData) => isSellSignal(d.buySell)}
+					usingProps={sellAnnotationProps}
+				/>
+			</Chart>
+			<CrossHairCursor strokeDasharray="LongDashDot" />
+		</ChartCanvas>
+	);
+}) as React.ComponentType<TradingChartProps & MyTradingChartProps> 

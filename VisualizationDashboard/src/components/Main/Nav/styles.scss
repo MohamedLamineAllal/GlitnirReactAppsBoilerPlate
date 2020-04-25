@@ -1,0 +1,13 @@
+.Nav {
+    display: flex;
+    flex-direction: row;
+
+    .glitnirLogo {
+        width: 100px;
+    }
+
+    .navigation {
+        display: flex;
+        flex-direction: row;
+    }
+}

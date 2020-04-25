@@ -1,0 +1,126 @@
+{
+  "name": "glitnir_control_and_visualization_app",
+  "version": "0.1.0",
+  "private": true,
+  "main": "public/electron.js",
+  "homepage": "./",
+  "dependencies": {
+    "@craco/craco": "^3.3.1",
+    "@deepstream/client": "^4.1.3",
+    "@types/d3-format": "^1.3.1",
+    "@types/d3-time-format": "^2.1.1",
+    "@types/history": "^4.7.2",
+    "@types/node": "^12.0.10",
+    "@types/react": "^16.8.22",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-router-dom": "^5.1.2",
+    "@types/react-select": "^3.0.6",
+    "@types/styled-components": "^4.1.19",
+    "date-fns": "^1.30.1",
+    "grommet": "^2.8.0",
+    "grommet-icons": "^4.4.0",
+    "history": "^4.9.0",
+    "jest": "^24.7.1",
+    "lightweight-charts": "^1.1.0",
+    "mobx": "^5.15.0",
+    "mobx-react": "^6.1.4",
+    "mobx-react-lite": "^2.0.0-test.1",
+    "react": "^16.9.0",
+    "react-dom": "^16.9.0",
+    "react-router-dom": "^5.1.2",
+    "react-scripts": "3.0.1",
+    "react-select": "^3.0.8",
+    "react-stockcharts": "^0.7.8",
+    "reactstrap": "^7.1.0",
+    "styled-components": "^4.4.0",
+    "technicalindicators": "^2.0.9",
+    "typescript": "^3.4.5"
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.22",
+    "cross-env": "^5.2.0",
+    "electron": "^7.1.2",
+    "eslint-plugin-react-hooks": "^2.0.1",
+    "gulp": "^4.0.0",
+    "node-sass": "^4.11.0",
+    "ts-jest": "^24.1.0"
+  },
+  "scripts": {
+    "start": "craco start",
+    "build": "craco build",
+    "buildIcon": "cp ../icons/iconAdmin-512x512.icns ./build/icon.icns",
+    "test": "craco test",
+    "eject": "react-scripts eject",
+    "electron": "electron .",
+    "dev": "cross-env PORT=3009 node start",
+    "configElectron": "sudo chown root node_modules/electron/dist/chrome-sandbox && sudo chmod 4755 node_modules/electron/dist/chrome-sandbox",
+    "preInstall": "electron-builder install-app-deps",
+    "pack": "electron-builder --dir",
+    "dist": "electron-builder ",
+    "pack-win": "electron-builder --win --dir",
+    "dist-win": "electron-builder --win",
+    "init": "npm install && npm run configElectron"
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "build": {
+    "appId": "com.AgencyWaitSystem_AdminApp.app",
+    "productName": "WQS Admin",
+    "files": [
+      "public/electron.js",
+      "build/**/*"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 110,
+          "y": 150
+        },
+        {
+          "x": 240,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ]
+    },
+    "icon": "build/icon.icns",
+    "linux": {
+      "category": "Utility",
+      "target": [
+        "AppImage",
+        "deb",
+        "rpm"
+      ]
+    },
+    "win": {
+      "target": [
+        "NSIS",
+        "zip"
+      ],
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "installerIcon": "public/icon.ico"
+    }
+  }
+}
